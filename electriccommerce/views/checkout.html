@@ -25,10 +25,35 @@
                         <input type="text" id="last-name" placeholder="Enter last name"/>
                     </div>
                 </div>
-                <div id="address-line">
-                    <div class="input-label">Address</div>
-                    <input type="text" id="address" class="full-line" placeholder="House Number, Street name, City, State, Country"/>
+                
+                <!-- ✅ NEW: Separate address fields -->
+                <div id="street-line">
+                    <div class="input-label">Street</div>
+                    <input type="text" id="street" class="full-line" placeholder="House Number, Street Name"/>
                 </div>
+                
+                <div id="city-state-line">
+                    <div id="city-box">
+                        <div class="input-label">City</div>
+                        <input type="text" id="city" placeholder="Enter city"/>
+                    </div>
+                    <div id="state-box">
+                        <div class="input-label">State/Province</div>
+                        <input type="text" id="state" placeholder="e.g., CA, ON"/>
+                    </div>
+                </div>
+                
+                <div id="country-zip-line">
+                    <div id="country-box">
+                        <div class="input-label">Country</div>
+                        <input type="text" id="country" placeholder="Enter country"/>
+                    </div>
+                    <div id="zip-box">
+                        <div class="input-label">Zip Code</div>
+                        <input type="text" id="zip" placeholder="Zip code"/>
+                    </div>
+                </div>
+                
                 <div id="phone-line">
                     <div class="input-label">Phone Number</div>
                     <input type="text" id="phone-number" class="full-line" placeholder="Enter phone number"/>
@@ -74,7 +99,6 @@
         </div>
     </div>
     
-    <!-- ✅ CRITICAL: Load api.js FIRST, then checkout.js -->
     <script type="text/javascript" src="../js/api.js"></script>
     <script type="text/javascript" src="../js/checkout.js"></script>
 </body>

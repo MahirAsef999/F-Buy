@@ -177,6 +177,7 @@ def login():
             """
             SELECT id, first_name, last_name, email, address,
                    shipping_street, shipping_city, shipping_state,
+                   shipping_country,
                    shipping_zip, shipping_phone
             FROM users
             WHERE email=%s AND password_hash=SHA2(%s,256)
@@ -224,6 +225,7 @@ def get_account():
             """
             SELECT id, first_name, last_name, email, address,
                    shipping_street, shipping_city, shipping_state,
+                   shipping_country,
                    shipping_zip, shipping_phone
             FROM users
             WHERE id = %s
@@ -255,7 +257,8 @@ def update_account():
     
     Accepted fields: first_name, last_name, email, password,
                      address, shipping_street, shipping_city, 
-                     shipping_state, shipping_zip, shipping_phone
+                     shipping_state, shipping_country,
+                     shipping_zip, shipping_phone
     
     Returns:
         200: Update successful
@@ -314,6 +317,12 @@ def update_account():
     if "shipping_state" in data:
         updates.append("shipping_state = %s")
         params.append((data.get("shipping_state") or "").strip())
+
+
+    # ✅ NEW: Country field
+    if "shipping_country" in data:
+        updates.append("shipping_country = %s")
+        params.append((data.get("shipping_country") or "").strip())
 
     if "shipping_zip" in data:
         updates.append("shipping_zip = %s")

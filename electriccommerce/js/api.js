@@ -227,7 +227,7 @@ const productImages = {
   Laptop: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/189f8d5b-03fe-4d49-aa2b-552018e1c819.jpg",
   TV: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/0343bc5e-db43-4664-8ef1-8a7255eae875.jpg",
   Speaker: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/db2aafd7-3ca3-48e3-a7fe-36714093bf8c.jpg",
-  OutDatedVinyl: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/a495cade-d7b5-4eb8-a36f-c378d3c29ec9.jpg",
+  Vinyl: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/a495cade-d7b5-4eb8-a36f-c378d3c29ec9.jpg",
   Switch2: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/2d2b885d-0b91-4a0a-b8e0-247fd2b26ab7.jpg",
   PlayStation5: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6601/6601524_sd.jpg",
   XboxS: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6470/6470289_sd.jpg",

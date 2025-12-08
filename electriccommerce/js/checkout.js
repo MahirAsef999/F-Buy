@@ -12,8 +12,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const firstInput = document.getElementById("first-name");
   const lastInput = document.getElementById("last-name");
   const emailInput = document.getElementById("email");
-  const addrInput = document.getElementById("address");
   const phoneInput = document.getElementById("phone-number");
+  
+  // ✅ NEW: Separate address fields
+  const streetInput = document.getElementById("street");
+  const cityInput = document.getElementById("city");
+  const stateInput = document.getElementById("state");
+  const countryInput = document.getElementById("country");
+  const zipInput = document.getElementById("zip");
 
   const cardNumberEl = document.getElementById("card-number");
   const expEl = document.getElementById("card-expiration");
@@ -24,8 +30,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     first: false,
     last: false,
     email: false,
-    addr: false,
     phone: false,
+    street: false,
+    city: false,
+    state: false,
+    country: false,
+    zip: false,
     cardNumber: false,
     exp: false,
     cvv: false,
@@ -34,8 +44,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (firstInput) firstInput.addEventListener("input", () => (touched.first = true));
   if (lastInput) lastInput.addEventListener("input", () => (touched.last = true));
   if (emailInput) emailInput.addEventListener("input", () => (touched.email = true));
-  if (addrInput) addrInput.addEventListener("input", () => (touched.addr = true));
   if (phoneInput) phoneInput.addEventListener("input", () => (touched.phone = true));
+  
+  // ✅ NEW: Track edits on address fields
+  if (streetInput) streetInput.addEventListener("input", () => (touched.street = true));
+  if (cityInput) cityInput.addEventListener("input", () => (touched.city = true));
+  if (stateInput) stateInput.addEventListener("input", () => (touched.state = true));
+  if (countryInput) countryInput.addEventListener("input", () => (touched.country = true));
+  if (zipInput) zipInput.addEventListener("input", () => (touched.zip = true));
+  
   if (cardNumberEl) cardNumberEl.addEventListener("input", () => (touched.cardNumber = true));
   if (expEl) expEl.addEventListener("input", () => (touched.exp = true));
   if (cvvEl) cvvEl.addEventListener("input", () => (touched.cvv = true));
@@ -43,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ✅ AUTOFILL NAME, EMAIL, PHONE, ADDRESS FROM DATABASE
   try {
     const account = await authedApi("/account/me");
-    console.log("✓ Loaded account for checkout:", account);
+    console.log("✅ Loaded account for checkout:", account);
 
     // First name
     if (firstInput && !touched.first && !firstInput.value && account.first_name) {
@@ -60,52 +77,45 @@ document.addEventListener("DOMContentLoaded", async () => {
       emailInput.value = account.email;
     }
 
-    // Phone (use phone first, fallback to shipping_phone)
+    // Phone
     if (phoneInput && !touched.phone && !phoneInput.value) {
       const phoneNumber = account.phone || account.shipping_phone;
       if (phoneNumber) phoneInput.value = phoneNumber;
     }
 
-    // ✅ ADDRESS - BUILD FROM YOUR ADDRESS-EDIT FORMAT
-    if (addrInput && !touched.addr && !addrInput.value) {
-      const parts = [];
-      
-      // Street
-      if (account.shipping_street) parts.push(account.shipping_street);
-      
-      // City
-      if (account.shipping_city) parts.push(account.shipping_city);
-      
-      // State (if US) OR Province (if international)
-      if (account.shipping_state && account.shipping_state !== "NON_US") {
-        parts.push(account.shipping_state);
-      } else if (account.shipping_province) {
-        parts.push(account.shipping_province);
-      }
-      
-      // Zip
-      if (account.shipping_zip) parts.push(account.shipping_zip);
-      
-      // Country (only if not US)
-      if (account.shipping_country && account.shipping_country !== "United States") {
-        parts.push(account.shipping_country);
-      }
-      
-      if (parts.length > 0) {
-        addrInput.value = parts.join(", ");
-        console.log("✓ Autofilled address:", addrInput.value);
-      }
+    // ✅ NEW: Autofill separate address fields
+    if (streetInput && !touched.street && !streetInput.value && account.shipping_street) {
+      streetInput.value = account.shipping_street;
     }
+    
+    if (cityInput && !touched.city && !cityInput.value && account.shipping_city) {
+      cityInput.value = account.shipping_city;
+    }
+    
+    if (stateInput && !touched.state && !stateInput.value) {
+      const stateValue = account.shipping_province || account.shipping_state;
+      if (stateValue) stateInput.value = stateValue;
+    }
+    
+    if (countryInput && !touched.country && !countryInput.value && account.shipping_country) {
+      countryInput.value = account.shipping_country;
+    }
+    
+    if (zipInput && !touched.zip && !zipInput.value && account.shipping_zip) {
+      zipInput.value = account.shipping_zip;
+    }
+
+    console.log("✅ Autofilled address fields");
   } catch (err) {
     console.warn("Could not load account for autofill:", err);
   }
 
-  // ✅ AUTOFILL PAYMENT FROM DEFAULT CARD (INCLUDING CVV)
+  // ✅ AUTOFILL PAYMENT FROM DEFAULT CARD
   try {
     const defaultMethod = await authedApi("/payment-methods/default");
 
     if (defaultMethod) {
-      console.log("✓ Loaded default payment method");
+      console.log("✅ Loaded default payment method");
 
       // Card number (masked)
       if (cardNumberEl && !touched.cardNumber && !cardNumberEl.value) {
@@ -124,10 +134,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
 
-      // ✅ CVV - AUTOFILL FROM DATABASE
+      // CVV
       if (cvvEl && !touched.cvv && !cvvEl.value && defaultMethod.cvv) {
         cvvEl.value = defaultMethod.cvv;
-        console.log("✓ Autofilled CVV");
+        console.log("✅ Autofilled CVV");
       }
     }
   } catch (err) {
@@ -137,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ✅ LOAD CART
   try {
     const cart = await authedApi("/cart");
-    console.log("✓ Loaded cart:", cart);
+    console.log("✅ Loaded cart:", cart);
 
     if (!cart.items || cart.items.length === 0) {
       summaryEl.textContent = "Your cart is empty.";
@@ -178,19 +188,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   btn.addEventListener("click", async () => {
     const first = firstInput.value.trim();
     const last = lastInput.value.trim();
-    const address = addrInput.value.trim();
-    const phone = phoneInput.value.trim();
     const email = emailInput.value.trim();
+    const phone = phoneInput.value.trim();
+    
+    // ✅ NEW: Get separate address fields
+    const street = streetInput.value.trim();
+    const city = cityInput.value.trim();
+    const state = stateInput.value.trim();
+    const country = countryInput.value.trim();
+    const zip = zipInput.value.trim();
+    
     const cardNumber = cardNumberEl.value.trim();
     const exp = expEl.value.trim();
     const cvv = cvvEl.value.trim();
 
-    if (!first || !last || !address || !phone || !email || !cardNumber || !exp || !cvv) {
+    // ✅ Validate all fields
+    if (!first || !last || !email || !phone || !street || !city || !state || !country || !zip || !cardNumber || !exp || !cvv) {
       alert("Please fill out all fields.");
       return;
     }
 
     try {
+      // ✅ Build full address string for order
+      const fullAddress = `${street}, ${city}, ${state} ${zip}, ${country}`;
+      
       // Create order
       const order = await authedApi("/orders", {
         method: "POST",
@@ -198,11 +219,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           shippingName: `${first} ${last}`,
           shippingEmail: email,
           shippingPhone: phone,
-          shippingAddress: address,
+          shippingAddress: fullAddress,  // ✅ Send formatted address
         }),
       });
 
-      console.log("✓ Order created:", order);
+      console.log("✅ Order created:", order);
 
       // Process payment
       await authedApi("/payments/mock", {
@@ -210,10 +231,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         body: JSON.stringify({ orderId: order.id }),
       });
 
-      console.log("✓ Payment processed for order:", order.id);
+      console.log("✅ Payment processed for order:", order.id);
 
       alert(
-        `✓ Order placed successfully!\nOrder ID: ${order.id}\nTotal: $${order.total.toFixed(2)}`
+        `✅ Order placed successfully!\nOrder ID: ${order.id}\nTotal: $${order.total.toFixed(2)}`
       );
       window.location.href = "main.html";
     } catch (e) {
@@ -222,18 +243,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
