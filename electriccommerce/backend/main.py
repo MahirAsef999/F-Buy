@@ -11,12 +11,19 @@ from mysql.connector import pooling, Error as MySQLError
 from email_validator import validate_email, EmailNotValidError
 
 from paymentsystem import register_payment_routes
+from confirmation import send_order_confirmation, calculate_delivery_date, generate_tracking_number
 
 app = Flask(__name__)
 CORS(app)
 
 JWT_SECRET = "dev_secret"
 PAYMENT_ENCRYPTION_KEY = os.environ.get('PAYMENT_KEY', 'dev_payment_key_change_in_production')
+# CORS(app, resources={r"/api/*": {
+#     "origins": [
+#         "https://kellenfung.github.io",
+#         "https://your-frontend.onrender.com"
+#     ]
+# }})
 
 DB_CONFIG = {
     "host": "localhost",
@@ -753,7 +760,73 @@ def create_order():
             "createdAt": created_at.isoformat(),
         }
         
+        #delete below till exception for mysql and uncomment return jsonify(order_obj), 201
+        conn.commit()
+        
+        # ✅ GET PRODUCT NAMES FOR EMAIL
+        cur.execute(
+            """
+            SELECT oi.product_id, oi.quantity, oi.unit_price, p.name
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = %s
+            """,
+            (order_id,),
+        )
+        items_with_names = cur.fetchall()
+        
+        # ✅ SEND CONFIRMATION EMAIL
+        try:
+            # Get user email
+            cur.execute("SELECT email FROM users WHERE id = %s", (user_id,))
+            user_row = cur.fetchone()
+            user_email = user_row['email'] if user_row else shipping_email
+            
+            # Prepare email data
+            email_data = {
+                'id': order_id,
+                'total': order_total,
+                'items': [
+                    {
+                        'productName': item['name'],
+                        'qty': item['quantity'],
+                        'price': float(item['unit_price'])
+                    }
+                    for item in items_with_names
+                ],
+                'shipping_name': shipping_name or f"Customer {user_id}",
+                'shipping_address': shipping_address or "Address not provided",
+                'estimated_delivery_date': calculate_delivery_date(),
+                'tracking_number': generate_tracking_number()
+            }
+            
+            # Send email
+            send_order_confirmation(email_data, user_email)
+            print(f"✅ Confirmation email sent to {user_email}")
+            
+        except Exception as email_err:
+            # Don't fail the order if email fails
+            print(f"⚠️ Email failed (order still created): {email_err}")
+        
+        # Build response
+        order_obj = {
+            "id": order_id,
+            "userId": user_id,
+            "items": [
+                {
+                    "productId": item['product_id'],
+                    "qty": item['quantity'],
+                    "price": float(item['price'])
+                }
+                for item in cart_items
+            ],
+            "total": order_total,
+            "status": "pending",
+            "createdAt": created_at.isoformat(),
+        }
+        
         return jsonify(order_obj), 201
+
         
     except MySQLError as e:
         app.logger.exception(e)
@@ -769,7 +842,6 @@ def create_order():
 @app.get("/api/orders")
 def list_orders():
     """
-    ✅ FIXED: Get current user's order history FROM DATABASE
     Returns properly formatted data for frontend with subtotal and tax
     
     Returns:
