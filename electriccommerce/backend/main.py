@@ -319,7 +319,7 @@ def update_account():
         params.append((data.get("shipping_state") or "").strip())
 
 
-    # ✅ NEW: Country field
+    # Country field
     if "shipping_country" in data:
         updates.append("shipping_country = %s")
         params.append((data.get("shipping_country") or "").strip())
@@ -812,15 +812,15 @@ def list_orders():
             
             items = cur.fetchall()
             
-            # ✅ Calculate subtotal and tax
+            # Calculate subtotal and tax
             subtotal = sum(float(item['unit_price']) * item['quantity'] for item in items)
             tax = subtotal * 0.08
             
             result.append({
                 'id': order['id'],
                 'total': float(order['total']),
-                'subtotal': round(subtotal, 2),  # ✅ Added
-                'tax': round(tax, 2),            # ✅ Added
+                'subtotal': round(subtotal, 2),  
+                'tax': round(tax, 2),            
                 'status': order['status'],
                 'createdAt': order['created_at'].isoformat() if order['created_at'] else None,
                 'paidAt': order['paid_at'].isoformat() if order['paid_at'] else None,
@@ -832,9 +832,9 @@ def list_orders():
                     {
                         'productId': item['product_id'],
                         'productName': item['product_name'],
-                        'name': item['product_name'],          # ✅ Added for compatibility
-                        'quantity': item['quantity'],          # ✅ Added for compatibility
-                        'unitPrice': float(item['unit_price']),  # ✅ Added for compatibility
+                        'name': item['product_name'],          
+                        'quantity': item['quantity'],          
+                        'unitPrice': float(item['unit_price']),  
                         'qty': item['quantity'],
                         'price': float(item['unit_price'])
                     }

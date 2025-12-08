@@ -52,7 +52,6 @@
   font-size: 14px;
 }
 
-/* Quantity controls in cart */
 .count-container {
   display: flex;
   flex-direction: row;
@@ -99,7 +98,6 @@
   outline: none;
 }
 
-/* Delete button */
 .delete-product {
   align-self: flex-start;
   font-size: 2em;
@@ -114,7 +112,6 @@
   color: red;
 }
 
-/* Order summary panel */
 .order-detail-container {
   background-color: white;
   width: 30%;

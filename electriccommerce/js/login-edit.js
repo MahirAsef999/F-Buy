@@ -5,7 +5,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // ✅ REQUIRE AUTHENTICATION
+  //REQUIRE AUTHENTICATION
   try {
     await requireAuth();
   } catch (error) {
@@ -23,13 +23,11 @@ async function loadAccountInfo() {
     
     console.log("Loaded account data for login-edit:", data); // Debug log
 
-    // ✅ Load all fields from database
+    // Load all fields from database
     document.getElementById("first-name-input").value = data.first_name || "";
     document.getElementById("last-name-input").value = data.last_name || "";
     document.getElementById("email-input").value = data.email || "";
     
-    // ✅ FIXED: Use 'phone' field (simple phone) instead of shipping_phone
-    // If phone doesn't exist, fall back to shipping_phone
     document.getElementById("phone-input").value = data.phone || data.shipping_phone || "";
     
     // Password field always starts empty for security
@@ -132,7 +130,6 @@ function setupSaveButtons() {
     }
   });
 
-  // ✅ Phone - FIXED to use 'phone' field
   phoneBtn.addEventListener("click", async () => {
     const value = document.getElementById("phone-input").value.trim();
     if (!value) {
@@ -140,7 +137,6 @@ function setupSaveButtons() {
       return;
     }
     try {
-      // ✅ FIXED: Send as 'phone' instead of 'shipping_phone'
       const response = await authedApi("/account/me", {
         method: "PUT",
         body: JSON.stringify({ phone: value }),

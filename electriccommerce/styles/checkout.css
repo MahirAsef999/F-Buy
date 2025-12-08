@@ -38,7 +38,7 @@
     padding: 8px;
 }
 
-input:focus{ /*check again*/
+input:focus{ 
     border: 2px black solid;
 }
 

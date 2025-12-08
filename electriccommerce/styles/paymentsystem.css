@@ -1,4 +1,3 @@
-/* Overall layout (matches other account pages) */
 #main-container {
     display: flex;
     flex-direction: column;
@@ -12,7 +11,6 @@
     padding: 20px 40px;
 }
 
-/* Breadcrumb */
 #path-row {
     display: flex;
     flex-direction: row;
@@ -35,7 +33,6 @@
     margin-top: 5px;
 }
 
-/* Content: stack vertically and center, like checkout/login cards */
 #content-row {
     display: flex;
     flex-direction: column;
@@ -44,13 +41,11 @@
     margin-top: 10px;
 }
 
-/* Common width for the grey card + saved cards */
 #payment-form-card,
 #saved-methods {
     width: 500px;
 }
 
-/* Saved methods list (now under the form) */
 .section-title {
     font-size: 22px;
     font-weight: 600;
@@ -159,7 +154,6 @@
     color: #555;
 }
 
-/* Right: grey card, checkout-style */
 #payment-form-card {
     background-color: #f5f5f5;
     border: 1px solid #dddddd;
@@ -191,13 +185,11 @@
     box-sizing: border-box;
 }
 
-/* Error state: red border only (no solid red background) */
 .form-row input.error,
 .form-row select.error {
     border-color: #b00000;
 }
 
-/* Inline error text under each field */
 .field-error {
     font-size: 13px;
     color: #b00000;
@@ -205,7 +197,6 @@
     font-family: "Times New Roman", Georgia, serif;
 }
 
-/* Row with Expiration / CVV */
 .form-row.two-cols {
     flex-direction: row;
     gap: 10px;
@@ -217,7 +208,6 @@
     flex-direction: column;
 }
 
-/* Checkbox row */
 .checkbox-row {
     flex-direction: row;
     align-items: center;
@@ -230,7 +220,6 @@
     height: 16px;
 }
 
-/* Messages */
 .form-message {
     font-size: 14px;
     margin-top: 4px;
@@ -245,7 +234,6 @@
     color: #006400;
 }
 
-/* Buttons row */
 .form-actions-row {
     display: flex;
     flex-direction: row;
@@ -253,7 +241,6 @@
     margin-top: 10px;
 }
 
-/* Big blue button like your screenshot */
 #submit-btn {
     flex: 1;
     padding: 10px 0;
@@ -270,7 +257,6 @@
     filter: brightness(0.95);
 }
 
-/* Cancel button used when editing */
 .secondary-btn {
     padding: 10px 18px;
     font-size: 16px;
@@ -280,12 +266,10 @@
     cursor: pointer;
 }
 
-/* Helpers */
 .hidden {
     display: none;
 }
 
-/* On narrow screens */
 @media (max-width: 900px) {
     #content-row {
         flex-direction: column;

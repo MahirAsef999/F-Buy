@@ -180,7 +180,6 @@ button {
   font-weight: 600;
 }
 
-/* Field Error Styles - NEW */
 .field-error {
   display: block;
   color: #d32f2f;

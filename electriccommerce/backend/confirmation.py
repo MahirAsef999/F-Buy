@@ -12,10 +12,9 @@ import os
 from datetime import datetime, timedelta
 import random
 
-# ⚠️ REPLACE THIS WITH YOUR ACTUAL API KEY
+
 resend.api_key = "re_2i5ip6tL_NGdbJX6hF56QJ1UeKNknUxWM"
 
-# Resend's free test email (change to your domain later)
 FROM_EMAIL = "onboarding@resend.dev"
 
 
@@ -79,7 +78,6 @@ def send_order_confirmation(order_data, user_email):
         Resend response dict or None if failed
     """
     
-    # Build items table rows
     items_html = ""
     subtotal = 0
     
@@ -103,7 +101,6 @@ def send_order_confirmation(order_data, user_email):
     delivery_date_str = order_data['estimated_delivery_date'].strftime('%B %d, %Y')
     order_date_str = datetime.now().strftime('%B %d, %Y')
     
-    # Build beautiful HTML email
     html_content = f"""
     <!DOCTYPE html>
     <html>
@@ -246,7 +243,7 @@ def send_order_confirmation(order_data, user_email):
         
         response = resend.Emails.send(params)
         
-        print(f"✅ Email sent successfully!")
+        print(f"Email sent successfully!")
         print(f"   To: {user_email}")
         print(f"   Order: #{order_data['id']}")
         print(f"   Email ID: {response.get('id')}")
@@ -254,7 +251,7 @@ def send_order_confirmation(order_data, user_email):
         return response
         
     except Exception as e:
-        print(f"❌ Failed to send email: {e}")
+        print(f"Failed to send email: {e}")
         return None
 
 

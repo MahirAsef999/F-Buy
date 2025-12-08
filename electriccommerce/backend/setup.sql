@@ -9,7 +9,6 @@ CREATE USER IF NOT EXISTS 'ebuy_user'@'localhost' IDENTIFIED BY 'Software5432';
 GRANT ALL PRIVILEGES ON ebuy_app.* TO 'ebuy_user'@'localhost';
 FLUSH PRIVILEGES;
 
--- Users Table (✅ UPDATED: Added  shipping_country)
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(120) NOT NULL,
@@ -101,7 +100,6 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at DATETIME NOT NULL,
   paid_at DATETIME NULL,
   
-  -- NEW: Delivery tracking fields
   estimated_delivery_date DATE NULL,
   tracking_number VARCHAR(50) NULL,
   carrier VARCHAR(50) DEFAULT 'USPS',

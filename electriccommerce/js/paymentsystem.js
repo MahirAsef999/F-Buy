@@ -29,7 +29,7 @@ function showFieldError(fieldId, errorId, message) {
 
 // Initialize page
 document.addEventListener("DOMContentLoaded", async () => {
-    // ✅ REQUIRE AUTHENTICATION
+    //REQUIRE AUTHENTICATION
     try {
         await requireAuth();
     } catch (error) {
@@ -209,14 +209,12 @@ async function handleFormSubmit(e) {
 
     try {
         if (editingPaymentId) {
-            // ✅ Use authedApi
             await authedApi(`/payment-methods/${editingPaymentId}`, {
                 method: "PUT",
                 body: JSON.stringify(formData),
             });
             alert("Payment updated!");
         } else {
-            // ✅ Use authedApi
             await authedApi("/payment-methods", {
                 method: "POST",
                 body: JSON.stringify(formData),
@@ -236,7 +234,6 @@ async function loadPaymentMethods() {
     const container = document.getElementById("methods-list");
 
     try {
-        // ✅ Use authedApi
         const methods = await authedApi("/payment-methods");
         displayPaymentMethods(methods);
     } catch (err) {
@@ -282,7 +279,6 @@ function displayPaymentMethods(methods) {
 // Edit payment method
 async function editPaymentMethod(id) {
     try {
-        // ✅ Use authedApi
         const method = await authedApi(`/payment-methods/${id}`);
 
         document.getElementById("payment-id").value = id;
@@ -312,7 +308,6 @@ async function deletePaymentMethod(id) {
     if (!confirm("Delete this payment method?")) return;
 
     try {
-        // ✅ Use authedApi
         await authedApi(`/payment-methods/${id}`, {
             method: "DELETE",
         });

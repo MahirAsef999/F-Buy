@@ -4,7 +4,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // ✅ Load user info from database
+  //Load user info from database
   try {
     const token = localStorage.getItem("token");
     if (token) {

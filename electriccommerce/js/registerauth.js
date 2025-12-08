@@ -1,8 +1,5 @@
 /**
  * registerauth.js - User registration handler
- * ✅ PRODUCTION-READY with proper error handling
- * ✅ Prevents duplicate email registration
- * ✅ All data stored in database immediately upon registration
  */
 
 async function postJSON(path, body) {
@@ -48,7 +45,6 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
   const msg = document.getElementById("regMsg");
   let hasError = false;
 
-  // ✅ CLIENT-SIDE VALIDATION
   if (!firstName) {
     showFieldError("regFirstName", "firstNameError", "First name is required");
     hasError = true;
@@ -91,14 +87,12 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
 
   if (hasError) return;
 
-  // ✅ Disable button to prevent double submission
   const submitBtn = document.getElementById("registerBtn");
   const originalText = submitBtn.textContent;
   submitBtn.disabled = true;
   submitBtn.textContent = "Creating account...";
 
   try {
-    // ✅ REGISTER REQUEST - creates account in database
     // Database will reject if email already exists (UNIQUE constraint)
     await postJSON("/auth/register", {
       first_name: firstName,
@@ -113,23 +107,19 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     msg.textContent = "✓ Account created successfully! Redirecting to login...";
     console.log("✓ New account created for:", email);
     
-    // ✅ Clear form
     document.getElementById("registerForm").reset();
     
-    // ✅ Redirect to login page
     setTimeout(() => {
       window.location.href = "loginauth.html";
     }, 2000);
     
   } catch (e) {
-    // ✅ Re-enable button
     submitBtn.disabled = false;
     submitBtn.textContent = originalText;
     
     msg.className = "error";
     msg.style.display = "block";
     
-    // ✅ HANDLE DUPLICATE EMAIL ERROR
     const errorMessage = e.message.toLowerCase();
     
     if (errorMessage.includes("email already registered") || 
@@ -139,7 +129,6 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
       showFieldError("regEmail", "emailError", "This email is already registered");
       msg.textContent = "✗ This email is already registered. Please use a different email or sign in instead.";
       
-      // ✅ Provide link to login
       msg.innerHTML = `
         ✗ This email is already registered. 
         <a href="loginauth.html" style="color: #007bff; text-decoration: underline;">
@@ -161,7 +150,6 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
   }
 });
 
-// ✅ REAL-TIME VALIDATION
 document.getElementById("regFirstName").addEventListener("input", function () {
   if (this.value) {
     document.getElementById("firstNameError").textContent = "";
@@ -202,7 +190,6 @@ document.getElementById("regPassword2").addEventListener("input", function() {
     this.classList.remove("error");
   }
   
-  // ✅ Show mismatch error as user types
   if (this.value && this.value.length >= password.length && this.value !== password) {
     showFieldError("regPassword2", "password2Error", "Passwords do not match");
   }
@@ -213,17 +200,14 @@ document.getElementById("regClear").addEventListener("click", () => {
   clearErrors();
 });
 
-// ✅ REDIRECT IF ALREADY LOGGED IN
 window.addEventListener('DOMContentLoaded', async () => {
   const token = localStorage.getItem('token');
   if (token) {
     try {
-      // ✅ Check if user already has valid session
       await authedApi('/account/me');
       console.log('✓ Already logged in, redirecting to main page');
       window.location.href = "main.html";
     } catch (error) {
-      // Token invalid, stay on register page
       localStorage.removeItem('token');
     }
   }
