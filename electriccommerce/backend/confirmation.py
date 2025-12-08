@@ -15,7 +15,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 
-SENDGRID_API_KEY = "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"
+SENDGRID_API_KEY = ""
 
 
 def calculate_delivery_date(order_date=None):
