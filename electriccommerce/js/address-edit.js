@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const account = await authedApi("/account/me");
 
+    console.log("Loaded account data:", account); // Debug log
+
+    // Load US address fields
     if (account.shipping_street) {
       document.getElementById("street-input").value = account.shipping_street;
     }
@@ -22,14 +25,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (account.shipping_zip) {
       document.getElementById("zip-input").value = account.shipping_zip;
     }
-    if (account.shipping_phone && document.getElementById("phone-input")) {
-      document.getElementById("phone-input").value = account.shipping_phone;
+
+    // ✅ Load NON-US fields (province/country) from database
+    const provinceInput = document.getElementById("province-input");
+    const countryInput = document.getElementById("country-input");
+    
+    if (account.shipping_province && provinceInput) {
+      provinceInput.value = account.shipping_province;
+    }
+    if (account.shipping_country && countryInput) {
+      countryInput.value = account.shipping_country;
     }
 
     toggleNonUsFields();
   } catch (err) {
     console.error("Failed to load address:", err);
-    alert("Could not load address information.");
+    alert("Could not load address information: " + err.message);
   }
 
   // State selector toggle
@@ -53,19 +64,26 @@ async function saveAddress() {
     shipping_zip: document.getElementById("zip-input").value.trim(),
   };
 
-  const phoneEl = document.getElementById("phone-input");
-  if (phoneEl) {
-    payload.shipping_phone = phoneEl.value.trim();
+  // ✅ SAVE province/country to database
+  const provinceInput = document.getElementById("province-input");
+  const countryInput = document.getElementById("country-input");
+  
+  if (provinceInput) {
+    payload.shipping_province = provinceInput.value.trim();
+  }
+  if (countryInput) {
+    payload.shipping_country = countryInput.value.trim();
   }
 
-  // ✅ REMOVED: localStorage for province/country
-  // TODO: Add province/country fields to MySQL database if needed
+  console.log("Saving address data:", payload); // Debug log
 
   try {
-    await authedApi("/account/me", {
+    const response = await authedApi("/account/me", {
       method: "PUT",
       body: JSON.stringify(payload),
     });
+    
+    console.log("Save response:", response); // Debug log
     alert("Address saved successfully!");
   } catch (err) {
     console.error("Failed to save address:", err);

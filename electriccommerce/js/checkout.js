@@ -1,15 +1,9 @@
-/**
- * checkout.js - Checkout page with database-only data
- * ALL data from MySQL - NO localStorage except token
- * Requires authentication - guests blocked
- */
-
 document.addEventListener("DOMContentLoaded", async () => {
-  // ✅ BLOCK GUESTS - REQUIRE AUTHENTICATION
+  // ✅ REQUIRE LOGIN
   try {
     await requireAuth();
   } catch (error) {
-    return; // Redirected to login
+    return;
   }
 
   const summaryEl = document.getElementById("order-summary");
@@ -25,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const expEl = document.getElementById("card-expiration");
   const cvvEl = document.getElementById("card-cvv");
 
-  // Track which fields the user has edited
+  // Track if user has edited fields
   const touched = {
     first: false,
     last: false,
@@ -46,61 +40,73 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (expEl) expEl.addEventListener("input", () => (touched.exp = true));
   if (cvvEl) cvvEl.addEventListener("input", () => (touched.cvv = true));
 
-  // ✅ AUTOFILL SHIPPING FROM DATABASE (/account/me)
+  // ✅ AUTOFILL NAME, EMAIL, PHONE, ADDRESS FROM DATABASE
   try {
     const account = await authedApi("/account/me");
+    console.log("✓ Loaded account for checkout:", account);
 
-    if (account) {
-      // First name
-      if (firstInput && !touched.first && !firstInput.value) {
-        firstInput.value = account.first_name || "";
+    // First name
+    if (firstInput && !touched.first && !firstInput.value && account.first_name) {
+      firstInput.value = account.first_name;
+    }
+
+    // Last name
+    if (lastInput && !touched.last && !lastInput.value && account.last_name) {
+      lastInput.value = account.last_name;
+    }
+
+    // Email
+    if (emailInput && !touched.email && !emailInput.value && account.email) {
+      emailInput.value = account.email;
+    }
+
+    // Phone (use phone first, fallback to shipping_phone)
+    if (phoneInput && !touched.phone && !phoneInput.value) {
+      const phoneNumber = account.phone || account.shipping_phone;
+      if (phoneNumber) phoneInput.value = phoneNumber;
+    }
+
+    // ✅ ADDRESS - BUILD FROM YOUR ADDRESS-EDIT FORMAT
+    if (addrInput && !touched.addr && !addrInput.value) {
+      const parts = [];
+      
+      // Street
+      if (account.shipping_street) parts.push(account.shipping_street);
+      
+      // City
+      if (account.shipping_city) parts.push(account.shipping_city);
+      
+      // State (if US) OR Province (if international)
+      if (account.shipping_state && account.shipping_state !== "NON_US") {
+        parts.push(account.shipping_state);
+      } else if (account.shipping_province) {
+        parts.push(account.shipping_province);
       }
-
-      // Last name
-      if (lastInput && !touched.last && !lastInput.value) {
-        lastInput.value = account.last_name || "";
+      
+      // Zip
+      if (account.shipping_zip) parts.push(account.shipping_zip);
+      
+      // Country (only if not US)
+      if (account.shipping_country && account.shipping_country !== "United States") {
+        parts.push(account.shipping_country);
       }
-
-      // Email
-      if (emailInput && !touched.email && !emailInput.value) {
-        emailInput.value = account.email || "";
-      }
-
-      // Build full address from shipping fields
-      if (addrInput && !touched.addr && !addrInput.value) {
-        if (
-          account.shipping_street ||
-          account.shipping_city ||
-          account.shipping_state ||
-          account.shipping_zip
-        ) {
-          const parts = [
-            account.shipping_street || "",
-            account.shipping_city || "",
-            account.shipping_state || "",
-            account.shipping_zip || "",
-          ].filter(Boolean);
-          addrInput.value = parts.join(", ");
-        } else if (account.address) {
-          // Fallback to old single address field
-          addrInput.value = account.address;
-        }
-      }
-
-      // Phone
-      if (phoneInput && !touched.phone && !phoneInput.value && account.shipping_phone) {
-        phoneInput.value = account.shipping_phone;
+      
+      if (parts.length > 0) {
+        addrInput.value = parts.join(", ");
+        console.log("✓ Autofilled address:", addrInput.value);
       }
     }
   } catch (err) {
-    console.warn("Could not load account info for checkout:", err);
+    console.warn("Could not load account for autofill:", err);
   }
 
-  // ✅ AUTOFILL PAYMENT FROM DEFAULT CARD (DATABASE)
+  // ✅ AUTOFILL PAYMENT FROM DEFAULT CARD (INCLUDING CVV)
   try {
     const defaultMethod = await authedApi("/payment-methods/default");
 
     if (defaultMethod) {
+      console.log("✓ Loaded default payment method");
+
       // Card number (masked)
       if (cardNumberEl && !touched.cardNumber && !cardNumberEl.value) {
         const last4 = defaultMethod.lastFourDigits || defaultMethod.last4 || "****";
@@ -110,7 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Expiration
       if (expEl && !touched.exp && !expEl.value) {
         if (defaultMethod.expiryDate) {
-          expEl.value = defaultMethod.expiryDate; // e.g. "01/28"
+          expEl.value = defaultMethod.expiryDate;
         } else if (defaultMethod.expMonth && defaultMethod.expYear) {
           const mm = String(defaultMethod.expMonth).padStart(2, "0");
           const yy = String(defaultMethod.expYear).slice(-2);
@@ -118,25 +124,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
 
-      // Use cardholder name to backfill first/last if empty
-      const cardholder = defaultMethod.cardholderName || defaultMethod.cardholder_name || "";
-      if (cardholder) {
-        const parts = cardholder.trim().split(/\s+/);
-        if (firstInput && !touched.first && !firstInput.value && parts[0]) {
-          firstInput.value = parts[0];
-        }
-        if (lastInput && !touched.last && !lastInput.value && parts.length > 1) {
-          lastInput.value = parts.slice(1).join(" ");
-        }
+      // ✅ CVV - AUTOFILL FROM DATABASE
+      if (cvvEl && !touched.cvv && !cvvEl.value && defaultMethod.cvv) {
+        cvvEl.value = defaultMethod.cvv;
+        console.log("✓ Autofilled CVV");
       }
     }
   } catch (err) {
-    console.warn("No default payment method found.", err);
+    console.warn("No default payment method found:", err);
   }
 
-  // ✅ LOAD CART (AUTHENTICATED - from database)
+  // ✅ LOAD CART
   try {
     const cart = await authedApi("/cart");
+    console.log("✓ Loaded cart:", cart);
 
     if (!cart.items || cart.items.length === 0) {
       summaryEl.textContent = "Your cart is empty.";
@@ -170,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     calcEl.textContent = "";
   }
 
-  // ✅ PLACE ORDER (AUTHENTICATED)
+  // ✅ PLACE ORDER
   const btn = document.getElementById("place-order");
   if (!btn) return;
 
@@ -190,7 +191,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-      // Create order (tied to logged-in user via JWT)
+      // Create order
       const order = await authedApi("/orders", {
         method: "POST",
         body: JSON.stringify({
@@ -201,14 +202,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }),
       });
 
-      // Process mock payment
+      console.log("✓ Order created:", order);
+
+      // Process payment
       await authedApi("/payments/mock", {
         method: "POST",
         body: JSON.stringify({ orderId: order.id }),
       });
 
+      console.log("✓ Payment processed for order:", order.id);
+
       alert(
-        `Order placed successfully!\nOrder ID: ${order.id}\nTotal: $${order.total.toFixed(2)}`
+        `✓ Order placed successfully!\nOrder ID: ${order.id}\nTotal: $${order.total.toFixed(2)}`
       );
       window.location.href = "main.html";
     } catch (e) {
@@ -217,3 +222,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
