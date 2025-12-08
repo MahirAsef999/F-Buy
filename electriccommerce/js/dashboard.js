@@ -52,6 +52,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+ // Customer Service
+const customerServiceBox = document.getElementById("customer-service");
+if (customerServiceBox) {
+    customerServiceBox.addEventListener("click", () => {
+        window.location.href = "customer-service.html";
+    });
+}
+
   // "Your Account" title to go back to main page
   const title = document.getElementById("account-title");
   if (title) {

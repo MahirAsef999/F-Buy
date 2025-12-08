@@ -120,4 +120,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
+
+   document.querySelectorAll(".slider-container").forEach(container =>{
+    const slider = container.querySelector(".slider")
+    const card = container.querySelector(".card")
+    const leftBtn = container.querySelector(".left")
+    const rightBtn = container.querySelector(".right")
+
+    rightBtn.addEventListener("click", ()=>{
+      const containerWidth = slider.parentElement.clientWidth
+      slider.scrollBy({left: containerWidth, behavior: "smooth"})
+    })
+
+    leftBtn.addEventListener("click", ()=>{
+      const containerWidth = slider.parentElement.clientWidth
+      slider.scrollBy({left: -containerWidth, behavior: "smooth"})
+    })
+  })
+  
 });

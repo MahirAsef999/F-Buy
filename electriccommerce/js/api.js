@@ -22,27 +22,28 @@ async function api(path, opts = {}) {
     const res = await fetch(url, config);
 
     // ✅ Handle 401 Unauthorized - token is invalid or expired
-    if (res.status === 401) {
+     if (res.status === 401) {
+      const currentPage = window.location.pathname;
+      
+      // If on login/register page, it's wrong credentials (not expired session)
+      if (currentPage.includes('loginauth.html') || currentPage.includes('registerauth.html')) {
+        const data = await res.json();
+        const message = data.errors?.[0]?.msg || "Invalid credentials";
+        throw new Error(message);
+      }
+      
+      // Otherwise, it's an expired/invalid session
       localStorage.removeItem("token");
       
-      const currentPage = window.location.pathname;
-      // Don't redirect if already on public pages
-      if (!currentPage.includes('loginauth.html') && 
-          !currentPage.includes('registerauth.html') &&
-          !currentPage.includes('main.html') &&
-          !currentPage.includes('products.html')) {
-        
-        // Show user-friendly message
+      if (!currentPage.includes('main.html') && !currentPage.includes('products.html')) {
         showError("Your session has expired. Please log in again.");
-        
-        // Redirect after short delay
         setTimeout(() => {
           window.location.href = 'loginauth.html';
         }, 1500);
       }
+      
       throw new Error("Session expired - please log in again");
     }
-
     // ✅ Handle 403 Forbidden
     if (res.status === 403) {
       showError("You don't have permission to access this resource.");

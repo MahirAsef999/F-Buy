@@ -77,7 +77,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
     msg.className = "success";
     msg.style.display = "block";
-    msg.textContent = "✓ Login successful! Redirecting...";
+    msg.textContent = "Login successful! Redirecting...";
     console.log("✓ User logged in successfully:", email);
 
     // ✅ Redirect to dashboard after short delay
@@ -106,10 +106,10 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       showFieldError("loginPassword", "passwordError", "Check your credentials");
     } 
     else if (errorMessage.includes("network")) {
-      msg.textContent = "✗ Unable to connect to server. Please check your internet connection.";
+      msg.textContent = "Unable to connect to server. Please check your internet connection.";
     }
     else if (errorMessage.includes("server error")) {
-      msg.textContent = "✗ Server error. Please try again in a few moments.";
+      msg.textContent = "Server error. Please try again in a few moments.";
     }
     else {
       msg.textContent = "✗ " + (err.message || "Login failed. Please try again.");
@@ -156,11 +156,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       // If token is valid, user data will be returned
       // If token expired or invalid, this will throw error and clear token
       await authedApi('/account/me');
-      console.log('✓ Already logged in with valid session, redirecting to dashboard');
+      console.log('Already logged in with valid session, redirecting to dashboard');
       window.location.href = "dashboard.html";
     } catch (error) {
       // ✅ Token is invalid/expired, clear it and stay on login page
-      console.log('✗ Session expired, clearing token');
+      console.log('Session expired, clearing token');
       localStorage.removeItem('token');
     }
   }
