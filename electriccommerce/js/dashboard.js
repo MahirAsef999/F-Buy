@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         greetingEl.textContent = `Welcome, ${account.first_name}!`;
       }
     }
+    await updateCartBadge();
   } catch (err) {
     console.error("Failed to load user info:", err);
   }
