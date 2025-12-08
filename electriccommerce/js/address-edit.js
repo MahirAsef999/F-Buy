@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     
     // ✅ Load state/province (try both fields for backward compatibility)
-    const stateValue = account.shipping_province || account.shipping_state || "";
+    const stateValue = account.shipping_state || "";
     if (stateValue) {
       document.getElementById("state-input").value = stateValue;
     }
@@ -52,7 +52,6 @@ async function saveAddress() {
   const payload = {
     shipping_street: document.getElementById("street-input").value.trim(),
     shipping_city: document.getElementById("city-input").value.trim(),
-    shipping_province: stateValue,  // ✅ Save to province field (universal)
     shipping_state: stateValue,     // ✅ Also save to state for backward compatibility
     shipping_country: document.getElementById("country-input").value.trim(),
     shipping_zip: document.getElementById("zip-input").value.trim(),

@@ -9,7 +9,7 @@ CREATE USER IF NOT EXISTS 'ebuy_user'@'localhost' IDENTIFIED BY 'Software5432';
 GRANT ALL PRIVILEGES ON ebuy_app.* TO 'ebuy_user'@'localhost';
 FLUSH PRIVILEGES;
 
--- Users Table (✅ UPDATED: Added shipping_province and shipping_country)
+-- Users Table (✅ UPDATED: Added  shipping_country)
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(120) NOT NULL,
@@ -20,8 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   shipping_street VARCHAR(255) NULL,
   shipping_city   VARCHAR(120) NULL,
   shipping_state  VARCHAR(80)  NULL,
-  shipping_province VARCHAR(120) NULL,  -- ✅ NEW FIELD
-  shipping_country VARCHAR(120) NULL,   -- ✅ NEW FIELD
+  shipping_country VARCHAR(120) NULL,   
   shipping_zip    VARCHAR(20)  NULL,
   shipping_phone  VARCHAR(50)  NULL,
 

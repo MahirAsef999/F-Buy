@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     
     if (stateInput && !touched.state && !stateInput.value) {
-      const stateValue = account.shipping_province || account.shipping_state;
+      const stateValue = account.shipping_state;
       if (stateValue) stateInput.value = stateValue;
     }
     
