@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>E-Buy — Admin</title>
+
+  <link rel="stylesheet" href="../styles/admin.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">E-Buy</span>
+      <span class="subtitle">Admin Dashboard</span>
+    </div>
+
+    <div class="topbar-actions">
+      <span id="adminEmail" class="muted"></span>
+      <button id="refreshBtn" class="btn">Refresh</button>
+      <button id="logoutBtn" class="btn btn-outline">Logout</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <div class="panel-header">
+        <h1>Orders</h1>
+
+        <div class="filters">
+          <input id="searchInput" type="search" placeholder="Search by order id, email, name..." />
+          <select id="statusFilter">
+            <option value="">All Statuses</option>
+            <option value="pending">pending</option>
+            <option value="paid">paid</option>
+            <option value="shipped">shipped</option>
+            <option value="delivered">delivered</option>
+            <option value="failed">failed</option>
+            <option value="cancelled">cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="msg" class="msg hidden"></div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>User</th>
+              <th>Created</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Shipping</th>
+              <th>Items</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTbody">
+            <!-- filled by admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/admin.js"></script>
+</body>
+</html>
