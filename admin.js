@@ -190,7 +190,7 @@ async function updateOrderStatus(orderId, status) {
   hideMsg();
   try {
     await authedApi(`/admin/orders/${orderId}`, {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify({ status }),
     });
 
@@ -240,3 +240,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   await verifyAdminOrKick();
   await refreshAll();
 });
+
