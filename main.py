@@ -62,8 +62,6 @@ def issue_token(user):
         "first_name": user["first_name"],
         "last_name": user["last_name"],
         "address": user.get("address"),
-        # ✅ NEW: include admin flag in token payload (safe + useful for UI),
-        # but admin endpoints will still verify admin in DB (more secure).
         "is_admin": int(user.get("is_admin") or 0),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
@@ -92,7 +90,7 @@ def get_user_id_from_token():
     return payload.get("id")
 
 
-# ✅ NEW: Admin guard (verifies admin status directly from DB)
+# Admin guard (verifies admin status directly from DB)
 def require_admin():
     """
     Verify the current authenticated user is an admin (checked in DB).
@@ -1053,7 +1051,13 @@ def pay():
             pass
 
 
-# ---------- ADMIN ROUTES (READ USERS, READ ORDERS, UPDATE ORDER STATUS) ----------
+# ADMIN ROUTES
+
+@app.get("/api/admin/verify")
+def admin_verify():
+    require_admin()
+    return jsonify({"ok": True})
+
 
 @app.get("/api/admin/users")
 def admin_list_users():
