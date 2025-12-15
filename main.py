@@ -1094,6 +1094,7 @@ def admin_list_users():
 def admin_list_orders():
     """
     Admin-only: list all orders with user info and item details.
+    Now also returns tax + totalWithTax, and includes qty/price aliases per item.
     """
     require_admin()
 
@@ -1129,6 +1130,11 @@ def admin_list_orders():
             )
             items = cur.fetchall()
 
+            # Compute subtotal/tax/total-with-tax from order_items
+            subtotal = sum(float(it["line_total"]) for it in items)
+            tax = subtotal * 0.08
+            total_with_tax = subtotal + tax
+
             result.append({
                 "id": order["id"],
                 "userId": order["user_id"],
@@ -1137,7 +1143,15 @@ def admin_list_orders():
                     "lastName": order.get("last_name"),
                     "email": order.get("user_email"),
                 },
-                "total": float(order["total"]),
+
+                # For admin display: make total INCLUDE tax (so your UI "Total" column just works)
+                "total": round(total_with_tax, 2),
+
+                # Extra fields (nice to show later if you want)
+                "subtotal": round(subtotal, 2),
+                "tax": round(tax, 2),
+                "totalWithTax": round(total_with_tax, 2),
+
                 "status": order["status"],
                 "createdAt": order["created_at"].isoformat() if order.get("created_at") else None,
                 "paidAt": order["paid_at"].isoformat() if order.get("paid_at") else None,
@@ -1148,12 +1162,20 @@ def admin_list_orders():
                 "shippingEmail": order.get("shipping_email"),
                 "shippingPhone": order.get("shipping_phone"),
                 "shippingAddress": order.get("shipping_address"),
+
                 "items": [
                     {
                         "productId": it["product_id"],
                         "productName": it["product_name"],
-                        "quantity": it["quantity"],
+
+                        # Quantity in both  names so frontend won't show undefined
+                        "quantity": int(it["quantity"]),
+                        "qty": int(it["quantity"]),
+
+                        # Price aliases (optional, but helpful)
                         "unitPrice": float(it["unit_price"]),
+                        "price": float(it["unit_price"]),
+
                         "lineTotal": float(it["line_total"]),
                     }
                     for it in items
@@ -1171,6 +1193,7 @@ def admin_list_orders():
             conn.close()
         except Exception:
             pass
+
 
 
 @app.put("/api/admin/orders/<order_id>/status")
