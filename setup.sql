@@ -5,12 +5,11 @@ CREATE DATABASE IF NOT EXISTS ebuy_app
 
 USE ebuy_app;
 
--- Create DB user 
 CREATE USER IF NOT EXISTS 'ebuy_user'@'localhost' IDENTIFIED BY 'Software5432';
 GRANT ALL PRIVILEGES ON ebuy_app.* TO 'ebuy_user'@'localhost';
 FLUSH PRIVILEGES;
 
--- USERS TABLE  
+-- USERS TABLE
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(120) NOT NULL,
@@ -22,28 +21,25 @@ CREATE TABLE IF NOT EXISTS users (
   shipping_street VARCHAR(255) NULL,
   shipping_city   VARCHAR(120) NULL,
   shipping_state  VARCHAR(80)  NULL,
-  shipping_country VARCHAR(120) NULL,
+  shipping_country VARCHAR(120) NULL,   
   shipping_zip    VARCHAR(20)  NULL,
   shipping_phone  VARCHAR(50)  NULL,
 
+  -- ADMIN FLAG 
   is_admin TINYINT(1) NOT NULL DEFAULT 0,
 
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX idx_users_admin ON users (is_admin);
-
-
 -- PRODUCTS TABLE
 CREATE TABLE IF NOT EXISTS products (
-  id VARCHAR(64) NOT NULL PRIMARY KEY,
+  id VARCHAR(64) NOT NULL PRIMARY KEY,   
   name VARCHAR(120) NOT NULL,
   description TEXT NULL,
   price DECIMAL(10,2) NOT NULL,
   image_url TEXT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- PRODUCT SEEDING
 INSERT INTO products (id, name, price) VALUES
@@ -62,7 +58,7 @@ INSERT INTO products (id, name, price) VALUES
   ('Switch2', 'Switch 2', 499.00),
   ('PlayStation5', 'PlayStation 5', 599.00),
   ('XboxS', 'Xbox Series S', 399.00),
-  ('OutDatedGameBoy', 'Game Boy', 59.00),
+  ('OutDatedGameBoy', 'Game Boy', 59.00), 
   ('Headphones', 'Headphones', 49.00),
   ('IPad', 'Tablet / iPad', 299.00),
   ('GamingDesktop', 'Gaming Desktop', 999.00),
@@ -83,7 +79,6 @@ INSERT INTO products (id, name, price) VALUES
   ('Vaccum', 'Vacuum', 100.00)
 ON DUPLICATE KEY UPDATE price = VALUES(price);
 
-
 -- CART ITEMS TABLE
 CREATE TABLE IF NOT EXISTS cart_items (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -99,8 +94,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
   FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
--- ORDERS TABLE (with delivery tracking)
+-- ORDERS TABLE (delivery tracking)
 CREATE TABLE IF NOT EXISTS orders (
   id CHAR(12) NOT NULL PRIMARY KEY,
   demo_token VARCHAR(64) NOT NULL,
@@ -109,12 +103,11 @@ CREATE TABLE IF NOT EXISTS orders (
   status ENUM('pending','paid','shipped','delivered','failed','cancelled') NOT NULL DEFAULT 'pending',
   created_at DATETIME NOT NULL,
   paid_at DATETIME NULL,
-
+  
   estimated_delivery_date DATE NULL,
   tracking_number VARCHAR(50) NULL,
   carrier VARCHAR(50) DEFAULT 'USPS',
 
--- SHIPPING INFORMATION
   shipping_name VARCHAR(200) NULL,
   shipping_email VARCHAR(190) NULL,
   shipping_phone VARCHAR(50) NULL,
@@ -142,7 +135,6 @@ CREATE TABLE IF NOT EXISTS order_items (
 CREATE INDEX idx_order_items_order
   ON order_items (order_id);
 
-
 -- PAYMENT METHODS TABLE
 CREATE TABLE IF NOT EXISTS payment_methods (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -164,3 +156,12 @@ CREATE TABLE IF NOT EXISTS payment_methods (
 
 CREATE INDEX idx_payment_methods_user
   ON payment_methods (user_id, is_default DESC, created_at DESC);
+
+-- ADMIN USERS
+CREATE INDEX idx_users_is_admin
+  ON users (is_admin);
+
+-- USER ADMIN UPDATE
+UPDATE users
+SET is_admin = 1
+WHERE email = 'masef1@fordham.edu';
