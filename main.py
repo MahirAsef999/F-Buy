@@ -1052,7 +1052,6 @@ def pay():
 
 
 # ADMIN ROUTES
-
 @app.get("/api/admin/verify")
 def admin_verify():
     require_admin()
