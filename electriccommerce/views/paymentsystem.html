@@ -9,6 +9,7 @@
     <div id="main-container">
         <div id="submain-container">
 
+            <!-- Breadcrumb -->
             <div id="path-row">
                 <a href="./main.html">E-Buy</a>
                 <span>&gt;</span>
@@ -21,10 +22,12 @@
 
             <div id="content-row">
 
+                <!-- FIRST: Add / edit form (checkout-style grey card, centered) -->
                 <section id="payment-form-card">
                     <h2 id="form-title" class="section-title">Add a New Card</h2>
 
                     <form id="payment-form" novalidate>
+                        <!-- hidden id used when editing -->
                         <input type="hidden" id="payment-id" />
 
                         <div class="form-row">
@@ -60,6 +63,7 @@
                             </div>
                             <div class="col">
                                 <label for="cvv">CVV</label>
+                                <!-- CVV is visible, not password -->
                                 <input type="text" id="cvv" name="cvv" placeholder="CVV" autocomplete="off" />
                                 <div id="cvvError" class="field-error"></div>
                             </div>
@@ -86,6 +90,7 @@
                     </form>
                 </section>
 
+                <!-- SECOND: Saved methods list (under the form) -->
                 <section id="saved-methods">
                     <h2 class="section-title">Saved Cards</h2>
                     <p id="saved-help">
@@ -93,6 +98,7 @@
                     </p>
 
                     <div id="methods-list">
+                        <!-- Filled dynamically by JS -->
                     </div>
 
                     <div id="no-methods" class="hidden">
@@ -104,6 +110,7 @@
         </div>
     </div>
 
+    <!-- Use whatever filename you are actually using on disk -->
     <script src="../js/api.js"></script>
     <script src="../js/paymentsystem.js"></script>
 </body>

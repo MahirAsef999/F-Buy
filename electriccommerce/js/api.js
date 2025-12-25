@@ -21,11 +21,11 @@ async function api(path, opts = {}) {
   try {
     const res = await fetch(url, config);
 
-    // Handle 401 Unauthorized - token is invalid or expired
+    // ✅ Handle 401 Unauthorized - token is invalid or expired
      if (res.status === 401) {
       const currentPage = window.location.pathname;
       
-      // If on login/register page, it's wrong credentials
+      // If on login/register page, it's wrong credentials (not expired session)
       if (currentPage.includes('loginauth.html') || currentPage.includes('registerauth.html')) {
         const data = await res.json();
         const message = data.errors?.[0]?.msg || "Invalid credentials";
@@ -44,37 +44,39 @@ async function api(path, opts = {}) {
       
       throw new Error("Session expired - please log in again");
     }
+    // ✅ Handle 403 Forbidden
     if (res.status === 403) {
       showError("You don't have permission to access this resource.");
       throw new Error("Access forbidden");
     }
 
+    // ✅ Handle 404 Not Found
     if (res.status === 404) {
       const text = await res.text();
       throw new Error(text || "Resource not found");
     }
 
-    // Handle duplicate values
+    // ✅ Handle 409 Conflict (duplicate email, etc.)
     if (res.status === 409) {
       const data = await res.json();
       const message = data.errors?.[0]?.msg || "This email is already registered";
       throw new Error(message);
     }
 
-    //Handle 400 validation errors
+    // ✅ Handle 400 Bad Request (validation errors)
     if (res.status === 400) {
       const data = await res.json();
       const message = data.errors?.[0]?.msg || "Invalid request";
       throw new Error(message);
     }
 
-    //Server Error
+    // ✅ Handle 500 Server Error
     if (res.status === 500) {
       showError("Server error. Please try again later.");
       throw new Error("Server error");
     }
 
-    //other non-OK responses
+    // ✅ Handle other non-OK responses
     if (!res.ok) {
       const text = await res.text();
       throw new Error(text || `HTTP ${res.status}`);
@@ -83,7 +85,7 @@ async function api(path, opts = {}) {
     return res.json();
 
   } catch (error) {
-    //network errors (server down, no internet)
+    // ✅ Handle network errors (server down, no internet)
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       showError("Unable to connect to server. Please check your internet connection.");
       throw new Error("Network error - unable to connect to server");
@@ -115,17 +117,18 @@ async function authedApi(path, opts = {}) {
 
 /**
  * Check if user is authenticated by validating token with backend
+ * ✅ Validates against database, not just localStorage
  */
 async function isAuthenticated() {
   const token = localStorage.getItem("token");
   if (!token) return false;
 
   try {
-    //fetch user from database
+    // ✅ Validate token by fetching user from database
     await authedApi("/account/me");
     return true;
   } catch (error) {
-    //Token invalid - clear it
+    // ✅ Token invalid - clear it
     localStorage.removeItem("token");
     return false;
   }
@@ -133,6 +136,7 @@ async function isAuthenticated() {
 
 /**
  * Require authentication - redirect to login if not authenticated
+ * ✅ Use this on protected pages (dashboard, checkout, orders, etc.)
  */
 async function requireAuth() {
   const authenticated = await isAuthenticated();
@@ -149,6 +153,7 @@ async function requireAuth() {
 
 /**
  * Parse JWT token to get user data (without API call)
+ * ✅ This is fine for getting user_id from token, but always fetch fresh data from database for display
  */
 function parseJwt(token) {
   if (!token) return null;
@@ -168,7 +173,11 @@ function parseJwt(token) {
   }
 }
 
+/**
+ * ✅ Show user-friendly error messages
+ */
 function showError(message) {
+  // Check if we're on a page with a message display area
   const msgElements = [
     document.getElementById("loginMsg"),
     document.getElementById("regMsg"),
@@ -182,11 +191,14 @@ function showError(message) {
     msgEl.textContent = message;
     msgEl.style.display = "block";
   } else {
+    // Fallback to alert if no message element found
     alert(message);
   }
 }
 
-
+/**
+ * ✅ Show success messages
+ */
 function showSuccess(message) {
   const msgElements = [
     document.getElementById("loginMsg"),
@@ -203,6 +215,7 @@ function showSuccess(message) {
   }
 }
 
+// ✅ Product images mapping (this is fine to keep in JS)
 const productImages = {
   Refrigerator: "https://zlinekitchen.com/cdn/shop/products/zline--french--door--stainless--steel--standard--depth--refrigerator--RSM-W-36--side.jpg?v=1722276759&width=1946",
   Microwave: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6577/6577280_sd.jpg",

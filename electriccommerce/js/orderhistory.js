@@ -1,8 +1,8 @@
 let allOrders = [];
-let currentFilter = "30";
+let currentFilter = "30"; // default = last 30 days
 
 document.addEventListener("DOMContentLoaded", async () => {
-    //REQUIRE AUTHENTICATION
+    // ✅ REQUIRE AUTHENTICATION
     try {
         await requireAuth();
     } catch (error) {
@@ -34,6 +34,7 @@ async function loadOrders() {
     const listEl = document.getElementById("orders-list");
 
     try {
+        // ✅ Use authedApi() instead of api()
         const data = await authedApi("/orders");
 
         // Sort newest → oldest
@@ -47,6 +48,7 @@ async function loadOrders() {
     }
 }
 
+// Apply current filter and re-render
 function applyFilterAndRender() {
     const now = new Date();
     let filtered = allOrders.slice();
@@ -67,6 +69,7 @@ function applyFilterAndRender() {
     renderOrders(filtered);
 }
 
+// Rendering helpers
 function renderOrders(orders) {
     const listEl = document.getElementById("orders-list");
     const emptyEl = document.getElementById("no-orders");
@@ -94,9 +97,11 @@ function orderToHtml(order) {
 
     const items = order.items || [];
 
+    // ✅ FIX: Use subtotal and tax from backend, then calculate correct total
     const subtotal = Number(order.subtotal || 0);
     const tax = Number(order.tax || 0);
     
+    // ✅ FIXED: Total should be subtotal + tax
     const total = subtotal + tax;
 
     const itemsHtml = items.map(itemToHtml).join("");
@@ -138,6 +143,7 @@ function orderToHtml(order) {
 function itemToHtml(item) {
     const name = item.name || item.productName || item.title || "Item";
 
+    // ✅ FIXED: Better image key matching
     let imageKey = item.imageKey || item.productId;
     
     // Try to match product name to image key
@@ -145,7 +151,8 @@ function itemToHtml(item) {
         imageKey = name.replace(/\s+/g, "");
     }
 
-    let imgSrc = "https://via.placeholder.com/100?text=Item";
+    // ✅ FIXED: Try multiple fallback strategies for images
+    let imgSrc = "https://via.placeholder.com/100?text=Item"; // default fallback
     
     if (imageKey && productImages[imageKey]) {
         imgSrc = productImages[imageKey];

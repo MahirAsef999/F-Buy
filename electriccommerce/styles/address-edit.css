@@ -72,6 +72,7 @@
     width: 140%;
 }
 
+/* Make the State dropdown match the input size */
 #state-select {
     font-size: 18px;
     padding: 6px;

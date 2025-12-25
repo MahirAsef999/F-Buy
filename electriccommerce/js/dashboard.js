@@ -4,7 +4,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  //Load user info from database
+  // Load user info from database
   try {
     const token = localStorage.getItem("token");
     if (token) {
@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         greetingEl.textContent = `Welcome, ${account.first_name}!`;
       }
     }
-    await updateCartBadge();
   } catch (err) {
     console.error("Failed to load user info:", err);
   }
@@ -60,6 +59,15 @@ if (customerServiceBox) {
         window.location.href = "customer-service.html";
     });
 }
+
+
+ // Admin
+const admin = document.getElementById("adminbox123");
+if (admin) {
+ admin.addEventListener("click", () => {
+  window.location.href = "admin.html";
+   });
+  }
 
   // "Your Account" title to go back to main page
   const title = document.getElementById("account-title");

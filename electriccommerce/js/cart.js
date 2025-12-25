@@ -7,6 +7,7 @@
 // Update cart badge in header
 async function updateCartBadge() {
   try {
+    // ✅ FIX: Use authedApi instead of api
     const cart = await authedApi("/cart");
     const itemCount = cart.items.length;
     const badge = document.getElementById("cartBadge");
@@ -24,6 +25,7 @@ async function updateCartBadge() {
   }
 }
 
+// Build cart rows inside cart modal
 async function loadCart() {
   const container = document.getElementById("cartProducts");
   if (!container) return;
@@ -31,6 +33,7 @@ async function loadCart() {
   container.innerHTML = '<div class="empty-message">Loading cart...</div>';
 
   try {
+    // ✅ FIX: Use authedApi instead of api
     const cart = await authedApi("/cart");
 
     if (!cart.items.length) {
@@ -52,14 +55,15 @@ async function loadCart() {
 }
 
 function createProductRow(item) {
-  const cartItemId = item.id; 
+  // ✅ FIX: Extract cart_item_id from item.id (NOT productId)
+  const cartItemId = item.id;  // This is the cart_items.id from database
   const productId = item.productId;
   const price = item.price;
   const qty = item.qty;
 
   const row = document.createElement("div");
   row.className = "cart-product-row";
-  row.dataset.cartItemId = cartItemId; 
+  row.dataset.cartItemId = cartItemId;  // Store cart item ID
   row.dataset.productId = productId;
 
   const imgDiv = document.createElement("div");
@@ -116,6 +120,7 @@ function createProductRow(item) {
   row.appendChild(descDiv);
   row.appendChild(delBtn);
 
+  // ✅ FIX: Pass cartItemId (NOT productId) to change/remove functions
   minus.addEventListener("click", () =>
     changeQty(cartItemId, parseInt(input.value || "1", 10) - 1)
   );
@@ -127,6 +132,7 @@ function createProductRow(item) {
   return row;
 }
 
+// ✅ FIX: Use cartItemId and authedApi
 async function changeQty(cartItemId, newQty) {
   if (newQty <= 0) {
     if (confirm("Remove this item from cart?")) {
@@ -135,6 +141,7 @@ async function changeQty(cartItemId, newQty) {
     return;
   }
   try {
+    // ✅ FIX: Use authedApi and cartItemId in URL
     await authedApi(`/cart/items/${cartItemId}`, {
       method: "PATCH",
       body: JSON.stringify({ qty: newQty })
@@ -147,8 +154,10 @@ async function changeQty(cartItemId, newQty) {
   }
 }
 
+// ✅ FIX: Use cartItemId and authedApi
 async function removeItem(cartItemId) {
   try {
+    // ✅ FIX: Use authedApi and cartItemId in URL
     await authedApi(`/cart/items/${cartItemId}`, {
       method: "DELETE"
     });
@@ -189,6 +198,7 @@ function closeCart() {
   if (modal) modal.style.display = "none";
 }
 
+// Checkout
 async function checkout() {
   closeCart();
   window.location.href = "checkout.html";

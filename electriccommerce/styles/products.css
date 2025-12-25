@@ -1,3 +1,4 @@
+/* Product rows on homepage */
 #row1, #row2, #row3, #row4, #row5, #row6 {
   display: flex;
   gap: 8px;
@@ -5,6 +6,7 @@
   padding: 0 20px;
 }
 
+/* Product thumbnails with hover title bar */
 .product-card {
   position: relative;
   border: none;
@@ -62,6 +64,7 @@
   filter: brightness(0.95);
 }
 
+/* Product detail modal layout */
 .product-modal-content {
   max-width: 700px;
 }
@@ -109,6 +112,7 @@
   text-align: center;
 }
 
+/* Buttons inside product modal */
 .checkout-btn {
   background: #ffd900;
   border-radius: 5px;

@@ -38,7 +38,9 @@ def simple_decrypt(encrypted_data, key):
 
 def get_user_from_token(jwt_secret):
     """
-    Extract and validate user ID from JWT token in Authorization header.    
+    Extract and validate user ID from JWT token in Authorization header.
+    ✅ Authenticates user from database
+    
     Args:
         jwt_secret: Secret key for JWT validation
         
@@ -65,7 +67,7 @@ def get_user_from_token(jwt_secret):
 def register_payment_routes(app, pool, jwt_secret, encryption_key):
     """
     Register all payment-related routes to the Flask app.
-    ✅ ALL DATA FROM MYSQL DATABASE - NO LOCALSTORAGE
+    ALL DATA FROM MYSQL DATABASE - NO LOCALSTORAGE
     
     Args:
         app: Flask application instance
@@ -77,6 +79,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
     @app.get("/api/payment-methods")
     def get_payment_methods():
         """
+        ✅ Get all payment methods for authenticated user FROM DATABASE
         Returns camelCase keys for frontend
         
         Returns:
@@ -90,7 +93,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             conn = pool.get_connection()
             cur = conn.cursor(dictionary=True)
             
-            #Query user's payment methods from database
+            # ✅ Query user's payment methods from database
             cur.execute("""
                 SELECT id, card_type, cardholder_name, last_four_digits, 
                        expiry_date, billing_zip, is_default, created_at
@@ -101,7 +104,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             
             methods = cur.fetchall()
             
-            #Convert to camelCase for frontend
+            # ✅ Convert to camelCase for frontend
             result = []
             for method in methods:
                 result.append({
@@ -131,6 +134,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
     @app.get("/api/payment-methods/<int:payment_id>")
     def get_payment_method(payment_id):
         """
+        ✅ Get single payment method by ID FROM DATABASE
         Returns masked card number for security
         
         Args:
@@ -148,7 +152,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             conn = pool.get_connection()
             cur = conn.cursor(dictionary=True)
             
-            # Verify ownership with user_id check
+            # ✅ Verify ownership with user_id check
             cur.execute("""
                 SELECT id, card_type, cardholder_name, card_number, last_four_digits,
                        expiry_date, billing_zip, is_default
@@ -169,7 +173,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             else:
                 masked_card_formatted = '**** **** **** ' + method['last_four_digits']
             
-            # Return camelCase keys
+            # ✅ Return camelCase keys
             result = {
                 'id': method['id'],
                 'cardType': method['card_type'],
@@ -196,7 +200,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
     @app.post("/api/payment-methods")
     def add_payment_method():
         """
-        Add new payment method TO DATABASE
+        ✅ Add new payment method TO DATABASE
         Tied to user_id from JWT token
         
         Required fields: cardType, cardholderName, cardNumber, expiryDate, cvv, billingZip
@@ -245,7 +249,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
                     WHERE user_id = %s
                 """, (user_id,))
             
-            # Insert payment method tied to user_id
+            # ✅ Insert payment method tied to user_id
             cur.execute("""
                 INSERT INTO payment_methods 
                 (user_id, card_type, cardholder_name, card_number, last_four_digits, 
@@ -285,7 +289,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
     @app.put("/api/payment-methods/<int:payment_id>")
     def update_payment_method(payment_id):
         """
-        Update payment method IN DATABASE
+        ✅ Update payment method IN DATABASE
         Only updates fields that are provided in request
         
         Args:
@@ -305,7 +309,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             conn = pool.get_connection()
             cur = conn.cursor()
             
-            # Verify ownership
+            # ✅ Verify ownership
             cur.execute("""
                 SELECT id FROM payment_methods 
                 WHERE id = %s AND user_id = %s
@@ -314,6 +318,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             if not cur.fetchone():
                 return jsonify({"errors": [{"msg": "Payment method not found"}]}), 404
             
+            # Build update query dynamically
             update_fields = []
             update_values = []
             
@@ -363,6 +368,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             if not update_fields:
                 return jsonify({'message': 'No fields to update'}), 400
             
+            # Add WHERE clause parameters
             update_values.extend([payment_id, user_id])
             
             query = f"""
@@ -390,7 +396,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
     @app.delete("/api/payment-methods/<int:payment_id>")
     def delete_payment_method(payment_id):
         """
-        Delete payment method FROM DATABASE
+        ✅ Delete payment method FROM DATABASE
         
         Args:
             payment_id: Payment method ID
@@ -407,7 +413,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             conn = pool.get_connection()
             cur = conn.cursor()
             
-            # Delete payment method (user_id check ensures ownership)
+            # ✅ Delete payment method (user_id check ensures ownership)
             cur.execute("""
                 DELETE FROM payment_methods 
                 WHERE id = %s AND user_id = %s
@@ -434,7 +440,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
     @app.get("/api/payment-methods/default")
     def get_default_payment_method():
         """
-        Get default payment method FROM DATABASE
+        ✅ Get default payment method FROM DATABASE
         Used for checkout autofill
         
         Returns:
@@ -449,7 +455,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             conn = pool.get_connection()
             cur = conn.cursor(dictionary=True)
             
-            # Get default payment method for this user
+            # ✅ Get default payment method for this user
             cur.execute("""
                 SELECT id, card_type, cardholder_name, last_four_digits, expiry_date
                 FROM payment_methods 
@@ -462,7 +468,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             if not method:
                 return jsonify({"errors": [{"msg": "No default payment method set"}]}), 404
             
-            # Return camelCase keys
+            # ✅ Return camelCase keys
             return jsonify({
                 'id': method['id'],
                 'cardType': method['card_type'],
@@ -485,7 +491,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
     @app.put("/api/payment-methods/<int:payment_id>/set-default")
     def set_default_payment_method(payment_id):
         """
-        Set payment method as default IN DATABASE
+        ✅ Set payment method as default IN DATABASE
         
         Args:
             payment_id: Payment method ID
@@ -502,7 +508,7 @@ def register_payment_routes(app, pool, jwt_secret, encryption_key):
             conn = pool.get_connection()
             cur = conn.cursor()
             
-            # Verify ownership
+            # ✅ Verify ownership
             cur.execute("""
                 SELECT id FROM payment_methods 
                 WHERE id = %s AND user_id = %s

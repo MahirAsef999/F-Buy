@@ -146,18 +146,20 @@ document.getElementById("loginClear").addEventListener("click", () => {
   clearErrors();
 });
 
-// REDIRECT IF ALREADY LOGGED IN
+// ✅ REDIRECT IF ALREADY LOGGED IN
+// This checks if user has valid session (token validated against database)
 window.addEventListener('DOMContentLoaded', async () => {
   const token = localStorage.getItem('token');
   if (token) {
     try {
+      // ✅ Validate token by fetching user data from database
       // If token is valid, user data will be returned
       // If token expired or invalid, this will throw error and clear token
       await authedApi('/account/me');
       console.log('Already logged in with valid session, redirecting to dashboard');
       window.location.href = "dashboard.html";
     } catch (error) {
-      //Token is invalid/expired, clear it and stay on login page
+      // ✅ Token is invalid/expired, clear it and stay on login page
       console.log('Session expired, clearing token');
       localStorage.removeItem('token');
     }

@@ -27,9 +27,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Update UI based on authentication state
   if (isLoggedIn && user) {
+    // LOGGED IN STATE
     const firstName = user.first_name || "User";
 
+    // Update navbar greeting
     if (accountGreeting) {
       accountGreeting.textContent = `Welcome, ${firstName}!`;
     }
@@ -55,6 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       };
     }
 
+    // ✅ UPDATE BIG WELCOME TEXT ON HOMEPAGE
     const bigWelcomeText = document.querySelector('h2[style*="padding-left:20px"]');
     if (bigWelcomeText && bigWelcomeText.textContent.includes("By Mahir")) {
       bigWelcomeText.textContent = `Welcome, ${firstName}!`;
@@ -117,7 +121,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  //Slider functionality
    document.querySelectorAll(".slider-container").forEach(container =>{
     const slider = container.querySelector(".slider")
     const card = container.querySelector(".card")

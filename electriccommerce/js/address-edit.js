@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  //REQUIRE AUTHENTICATION
+  // ✅ REQUIRE AUTHENTICATION
   try {
     await requireAuth();
   } catch (error) {
     return;
   }
 
-  // Load existing address FROM DATABASE
+  // ✅ Load existing address FROM DATABASE
   try {
     const account = await authedApi("/account/me");
     console.log("Loaded account data:", account);
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("city-input").value = account.shipping_city;
     }
     
-    // Load state/province (try both fields for backward compatibility)
+    // ✅ Load state/province (try both fields for backward compatibility)
     const stateValue = account.shipping_state || "";
     if (stateValue) {
       document.getElementById("state-input").value = stateValue;
@@ -52,7 +52,7 @@ async function saveAddress() {
   const payload = {
     shipping_street: document.getElementById("street-input").value.trim(),
     shipping_city: document.getElementById("city-input").value.trim(),
-    shipping_state: stateValue,    
+    shipping_state: stateValue,     // ✅ Also save to state for backward compatibility
     shipping_country: document.getElementById("country-input").value.trim(),
     shipping_zip: document.getElementById("zip-input").value.trim(),
   };

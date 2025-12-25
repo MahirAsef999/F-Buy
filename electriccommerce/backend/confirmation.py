@@ -1,13 +1,11 @@
 """
-confirmation.py - Email confirmation service using Resend
+confirmation.py - Email confirmation service using Sendgrid
 
 Handles:
 - Order confirmation emails with delivery tracking
-- Beautiful HTML email templates
 - Delivery status updates
 """
 
-import resend
 import os
 from datetime import datetime, timedelta
 import random
@@ -15,27 +13,16 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 
-SENDGRID_API_KEY = ""
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
 
 
 def calculate_delivery_date(order_date=None):
-    """
-    Calculate estimated delivery date (3-5 business days)
-    
-    Args:
-        order_date: Order datetime, defaults to now
-        
-    Returns:
-        date: Estimated delivery date
-    """
     if not order_date:
         order_date = datetime.now()
     
-    # Add 4 days (middle of 3-5 day range)
     delivery_date = order_date + timedelta(days=4)
     
-    # Skip weekends
-    while delivery_date.weekday() >= 5:  # 5=Saturday, 6=Sunday
+    while delivery_date.weekday() >= 5: 
         delivery_date += timedelta(days=1)
     
     return delivery_date.date()
@@ -60,11 +47,9 @@ def format_currency(amount):
 
 
 def send_order_confirmation(order_data, user_email):
-    """
-    Send beautiful order confirmation email
-    
+    """    
     Args:
-        order_data: Dict with keys:
+        order_data:
             - id: order ID
             - total: total amount
             - items: list of {'productName', 'qty', 'price'}
@@ -75,7 +60,7 @@ def send_order_confirmation(order_data, user_email):
         user_email: Recipient email address
         
     Returns:
-        Resend response dict or None if failed
+        Sendgrid response dict or None if failed
     """
     
     items_html = ""
@@ -197,7 +182,6 @@ def send_order_confirmation(order_data, user_email):
                 
                 <!-- Track Order Button -->
                 <div style="text-align: center; margin-top: 40px;">
-                    <a href="http://127.0.0.1:5500/orderstatus.html?order={order_data['id']}" 
                        style="display: inline-block; padding: 16px 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
                         Track Your Order →
                     </a>
@@ -241,10 +225,10 @@ def send_order_confirmation(order_data, user_email):
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
-        print(f"✅ Email sent to {user_email}")
+        print(f"Email sent to {user_email}")
         return response
     except Exception as e:
-        print(f"❌ Failed to send email: {e}")
+        print(f"Failed to send email: {e}")
         return None
 
 
@@ -259,7 +243,7 @@ def send_delivery_update(order_id, user_email, status, tracking_url=None):
         tracking_url: Optional tracking URL
         
     Returns:
-        Resend response or None
+        Sendgrid response or None
     """
     
     status_info = {
@@ -313,17 +297,18 @@ def send_delivery_update(order_id, user_email, status, tracking_url=None):
     </html>
     """
     message = Mail(
-        from_email='orders@kellenfung.com',  # Use any email
+        from_email='orders@kellenfung.com', 
         to_emails=user_email,
         subject=f"{status_info['emoji']} {status_info['title']} - Order #{order_id}",
-        html_content=html_content  # Your existing HTML
+        html_content=html_content 
     )
 
     try:
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
-        print(f"✅ Email sent to {user_email}")
+        print(f"Email sent to {user_email}")
         return response
     except Exception as e:
-        print(f"❌ Failed to send email: {e}")
+        print(f"Failed to send email: {e}")
         return None
+

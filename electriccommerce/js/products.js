@@ -1,11 +1,13 @@
 /**
- * products.js
+ * products.js - FIXED VERSION
  * Checks authentication before adding to cart
+ * Uses authedApi() for POST /cart/items
  */
 
 // State for product detail modal
 let currentProductId = null;
 
+// Set up click handlers for each product-card
 function setupProductCards() {
   const cards = document.querySelectorAll(".product-card");
   cards.forEach(card => {
@@ -52,8 +54,10 @@ async function addCurrentProductToCart() {
   closeProductModal();
 }
 
+// ✅ FIXED: Add item to cart with authentication check
 async function myItem(itemName, qty = 1) {
   try {
+    // ✅ FIX 1: Check if user is logged in
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please log in to add items to your cart.");
@@ -61,6 +65,7 @@ async function myItem(itemName, qty = 1) {
       return;
     }
 
+    // ✅ FIX 2: Use authedApi instead of api
     await authedApi("/cart/items", {
       method: "POST",
       body: JSON.stringify({ productId: itemName, qty: qty })
@@ -91,6 +96,7 @@ window.addEventListener("click", function(event) {
   }
 });
 
+// ✅ INITIALIZE PRODUCT CARDS WHEN PAGE LOADS
 document.addEventListener("DOMContentLoaded", () => {
   setupProductCards();
 });
